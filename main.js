@@ -5,6 +5,17 @@ const {app, BrowserWindow, Menu} = require('electron')
 const url = require('url')
 const path = require('path')
 const {ipcMain, dialog} = require('electron')
+// const { WASI } = require('wasi'); // Requirements for web assembly
+//
+// const wasi = new WASI({
+//   args: process.argv,
+//   env: process.env,
+//   preopens: {
+//     '/sandbox': '/some/real/path/that/wasm/can/access'
+//   }
+// });
+
+const devTools = false
 
 // var debug = false
 
@@ -155,8 +166,8 @@ function openLogFileDialog() {
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       nodeIntegration: true
     }
@@ -168,7 +179,7 @@ function createWindow () {
   win.loadFile('index.html')
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished

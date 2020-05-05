@@ -9,26 +9,38 @@
     <title>Hello World!</title>
     <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+
+    <link rel="stylesheet" href="styles/main.css" />
 </head>
 
 <body>
     <script type = "text/javascript">
-   const {ipcRenderer} = require('electron')
+    const {ipcRenderer} = require('electron')
 
-   // ipcRenderer.send('open-log-file-dialog', () => {
-   //    console.log("Event sent.");
-   // })
+    // ipcRenderer.send('open-log-file-dialog', () => {
+    //    console.log("Event sent.");
+    // })
 
-   ipcRenderer.on('fileData', (event, data) => {
-       console.log('Writing data');
-      document.write(data)
-   })
-</script>
-    <h1>Hello World!</h1>
-    <button onclick="ipcRenderer.send('open-log-file-dialog')"></button>
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chrome <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
+    ipcRenderer.on('fileData', (event, data) => {
+        console.log('Writing data');
+        document.getElementById('file-content').innerHTML=data;
+    })
+    </script>
+
+    <div class="wrapper">
+        <div id="file-content">
+            File
+            <script src="wasm/test.js"></script>
+        </div>
+        <div id="filter-window">
+            Filter
+        </div>
+    </div>
+
+    <div id="command-toolbar">
+        Toolbar
+    </div>
+
     <!-- <script src="./xxx.js"></script> -->
 </body>
 
