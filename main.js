@@ -157,6 +157,13 @@ function openLogFileDialog() {
               return
           }
 
+          const buf = fs.readFileSync('./addTwo.wasm');
+          const lib = await WebAssembly.instantiate(new Uint8Array(buf)).
+            then(res => res.instance.exports);
+
+          console.log(lib.addTwo(2, 2)); // Prints '4'
+          console.log(lib.addTwo.toString()); // Prints 'function addTwo() { [native code] }'
+
           // handle the file content
           win.webContents.send('fileData', data);
       })
