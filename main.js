@@ -130,7 +130,8 @@ function openLogFileDialog() {
     let openFPs = dialog.showOpenDialog({properties: ['openFile']}).then(fileNames=> {
         console.log(fileNames);
         var path = fileNames.filePaths[0]
-        console.log(path);
+
+        // TODO: make guesses about mail.log, access.log, etc based on file path
         // fileNames is an array that contains all the selected
         if (path === undefined) {
             console.log("No file selected");
