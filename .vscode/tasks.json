@@ -30,8 +30,11 @@
                 "${file}",
                 "-o",
                 "${fileDirname}/wbin/${fileBasenameNoExtension}.js",
+                // "-s",
+                // "EXPORTED_FUNCTIONS=['_processFromFilename()']",
                 "-s",
-                "WASM=1"
+                "WASM=1",
+                "-O2"
             ]
         },
         {

@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #define MAX_LINE_SIZE 1000
 // #define DEFAULT_NUM_ARRAYS 100
 #define DEFAULT_BLOCK_SIZE 10
@@ -27,7 +31,8 @@ Line** processInputToStructs(FILE* fp, const size_t, int*, const ProcessOptions*
 char* strtokm(char *str, const char *delim);
 
 #ifdef __EMSCRIPTEN__
-char* main(char* filename) {)
+// char* main(char* filename) {
+char* EMSCRIPTEN_KEEPALIVE processFromFilename(char* filename) {
 #else
 int main(int argc, char** argv) {
 #endif
@@ -51,6 +56,8 @@ int main(int argc, char** argv) {
 
     printf("Enter your data: \n");
     Line** lineStruct = processInputToStructs(fp, DEFAULT_BLOCK_SIZE, &linecount, &po);
+
+    fclose(fp);
 
     char* outStr = malloc(sizeof(char[MAX_LINE_SIZE * ARRAY_BLOCK_SIZE]));
 
