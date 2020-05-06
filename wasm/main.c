@@ -26,38 +26,69 @@ typedef struct ProcessOptions {
 Line** processInputToStructs(FILE* fp, const size_t, int*, const ProcessOptions*);
 char* strtokm(char *str, const char *delim);
 
+#ifdef __EMSCRIPTEN__
+char* main(char* filename) {)
+#else
 int main(int argc, char** argv) {
+#endif
     // Setup how we should split
     ProcessOptions po;
     // po.line_deliminator = "\n";
-    char* fd[] = {".", ".", " "};
+    char* fd[] = {" ", " ", " ", " "};
 
     po.field_deliminators = fd;
-    po.fdc = 3;
-    // po.fdc = 0;
-
-    printf("First: %s\n",fd[0]);
-    printf("Second: %s\n",po.field_deliminators[0]);
+    po.fdc = 4;
 
     int linecount;
 
+    #ifdef __EMSCRIPTEN__
+    FILE* fp = fopen(filename, "r");
+    #else
     FILE* fp = fopen(argv[1], "r");
+    #endif
+
     // fp = stdin;
 
     printf("Enter your data: \n");
     Line** lineStruct = processInputToStructs(fp, DEFAULT_BLOCK_SIZE, &linecount, &po);
+
+    char* outStr = malloc(sizeof(char[MAX_LINE_SIZE * ARRAY_BLOCK_SIZE]));
+
     // Print full lines
-    for (int i=0; i<linecount; ++i) printf("%ld: %s", lineStruct[i]->linenumber, lineStruct[i]->fullline);
+    for (int i=0; i<linecount; ++i) {
+        printf("%ld: %s", lineStruct[i]->linenumber, lineStruct[i]->fullline);
+    }
     // Now print split lines
     for(int i=0; i<linecount; ++i) {        // Loop through line structs
+        strcat(outStr, "<tr><td class='line-number'>");
+
+        int lineNumber = i+1;
+        int length = snprintf(NULL, 0, "%d", lineNumber);
+        char* p = malloc(length + 1);
+        snprintf(p, length + 1, "%d", lineNumber);
+        strcat(outStr, p);
+        free(p);
+        strcat(outStr, "</td>");
+
         for (int j=0; j<po.fdc; ++j) {      // Loop through fields
-            printf("%s:", lineStruct[i]->splitLine[j]);
+            strcat(outStr, "<td>");
+            strcat(outStr,lineStruct[i]->splitLine[j]);
+            strcat(outStr, "</td>");
+            printf("%s", lineStruct[i]->splitLine[j]);
         }
+        strcat(outStr, "</tr>");
         printf("\n");
     }
 
     free(lineStruct);
+
+    printf("Final:\n %s", outStr);
+
+    #ifdef __EMSCRIPTEN__
+    return outStr;
+    #else
     return 0;
+    #endif
 }
 
 Line**  processInputToStructs(FILE* fp, const size_t size, int* structcount, const ProcessOptions* po) {
@@ -66,18 +97,14 @@ Line**  processInputToStructs(FILE* fp, const size_t size, int* structcount, con
     // Go through and make room for the arrays. Set line_array[i] equal to this ptr
     for (int i=0; i<ARRAY_BLOCK_SIZE; ++i) {
         lineArray[i] = malloc(sizeof(Line));
-        printf("Size: %lu", sizeof(Line));
-        // // We need to make room for the array it holds too
-        // char** ptr = malloc(sizeof(char[MAX_LINE_SIZE]) * MAX_NUM_FIELDS);
-        // lineArray[i]->splitLine = ptr;
-        // void* p1 = lineArray[i]->splitLine;
-        // void* p2 = (lineArray[i]->splitLine)+sizeof(char[MAX_LINE_SIZE]);
-        // void* p3 = lineArray[i]->splitLine[1];
-
-        // printf("");
-        
     }
 
+    Line* item0 = lineArray[0];
+    Line* item1 = lineArray[1];
+    Line* item2 = lineArray[2];
+    Line* item3 = lineArray[3];
+
+    // char tmpString[MAX_LINE_SIZE];
     int structIndex=0, blockIndex=0;
     Line* lStc = lineArray[structIndex];    // Get the first item from the list
     while (fgets(lStc->fullline, MAX_LINE_SIZE, fp)) {
@@ -89,26 +116,21 @@ Line**  processInputToStructs(FILE* fp, const size_t size, int* structcount, con
             blockIndex = 0;
         }
 
-        printf("%i\n", po->fdc);
+        // Setup our splitline; make the first element equal to the full line
+        lStc->splitLine[0] = malloc(sizeof(lStc->fullline));
+        strcpy(lStc->splitLine[0], lStc->fullline);
 
-        // If we never split, just make splitLine same as the full line
-        if (po->fdc == 0) {
-            lStc->splitLine[0] = malloc(sizeof(lStc->fullline));
-            strcpy(lStc->splitLine[0], lStc->fullline);
-        }
-        else { // Otherwise we can run strtok at least once
-            // We want to work with tmpstring since strtok will split whatever it touches
-            char tmpString[MAX_LINE_SIZE];
-            strcpy(tmpString, lStc->fullline);
-            printf("Third: %s %s\n", tmpString, po->field_deliminators[0]);
+        // If we have deliminators, we want to go through and split it
+        if (po->fdc > 0) {
             // First strtok iteration
-            lStc->splitLine[0] = strtok(tmpString,po->field_deliminators[0]);
-            printf("Made it!");
+            lStc->splitLine[0] = strtok(lStc->splitLine[0],po->field_deliminators[0]);
+
             // Iterate through delims, split the line. If fdc=1, we never run
             for (int i=1; i<po->fdc; ++i) {
                 lStc->splitLine[i] = strtok(NULL, po->field_deliminators[i]);
             }
         }
+
         
         lStc->linenumber = ++structIndex;       // Structindex+1 will be logical line #
         lStc = lineArray[structIndex];          // For the next run we want the next line

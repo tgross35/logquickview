@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "clang - Build and debug active file",
+            "name": "Build & debug with nginx log input",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${fileDirname}/bin/${fileBasenameNoExtension}.out",
             // "args": ["< ../test/nginx_stream.log"],
-            "args": ["../test/nginx_stream.log"],
+            "args": ["${workspaceFolder}/test/nginx_stream.log"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "clang build active file"
+            "preLaunchTask": "C/C++: clang build active file"
         }
     ]
 }
